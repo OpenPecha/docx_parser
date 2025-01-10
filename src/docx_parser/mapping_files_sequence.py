@@ -28,7 +28,7 @@ def copy_files_sequentially(source_folder: Path, output_folder: Path):
 
     # Copy files into sequentially numbered folders
     for idx, file in enumerate(files, start=1):
-        folder_name = f"STT_NY_{idx: 04d}"
+        folder_name = f"STT_NY_{idx:04d}"  # noqa
         target_folder = output_folder / folder_name
         target_folder.mkdir(parents=True, exist_ok=True)
 
