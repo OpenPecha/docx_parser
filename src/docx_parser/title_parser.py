@@ -68,7 +68,7 @@ def process_file(file_path: str, output_folder: str):
     skip_next = False
 
     span_tags = body.find_all("span")
-    for i, span_tag in enumerate(span_tags):
+    for span_walker, span_tag in enumerate(span_tags):
 
         # Skip or ignore empty span tags
         if skip_next:
@@ -94,8 +94,8 @@ def process_file(file_path: str, output_folder: str):
                     # Merge with preceding and following content
                     prev_content = current_content.pop() if current_content else ""
                     next_content = (
-                        extract_content(span_tags[i + 1])
-                        if i + 1 < len(span_tags)
+                        extract_content(span_tags[span_walker + 1])
+                        if span_walker + 1 < len(span_tags)
                         else []
                     )
                     merged_content = (
@@ -104,9 +104,9 @@ def process_file(file_path: str, output_folder: str):
                     # Replace the next content with the merged version
                     current_content.append(merged_content)
                     # if the following span have c1 class then skip that content for the continuation.
-                    if i + 1 < len(span_tags) and "c1" in span_tags[i + 1].get(
-                        "class", []
-                    ):
+                    if span_walker + 1 < len(span_tags) and "c1" in span_tags[
+                        span_walker + 1
+                    ].get("class", []):
                         skip_next = True
                 else:
                     current_content.extend(content)

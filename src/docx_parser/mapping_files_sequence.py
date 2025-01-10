@@ -1,45 +1,62 @@
 # This script is used to map the extracted files to the proper folder structure. Works properly with the utsang and kham
-import os
 import shutil
-
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data"))
-folder1 = os.path.join(base_dir, "extracted_files")
-folder2 = os.path.join(base_dir, "ཨ་མདོའི་སྐད Final")
-output_folder = os.path.join(base_dir, "amdo_naykor_data_experiment")
-
-os.makedirs(output_folder, exist_ok=True)
+from pathlib import Path
 
 
-# Custom function to extract number from filename
-def extract_number_from_filename(filename):
-    # Remove the file extension
-    base_name = os.path.splitext(filename)[0]
-    # Extract numbers only from the base filename
-    number_str = "".join([char for char in base_name if char.isdigit()])
+def get_relative_directory() -> Path:
+    """
+    Get the base directory as a relative path from the script's location.
+    """
+    return Path(__file__).parent / "data"
+
+
+def extract_number_from_filename(filename: Path) -> int:
+    """
+    here the file name consists of number in it which i am extracting the number part only.
+    Extract numbers from the filename. If no numbers are found, return infinity.
+    """
+    number_str = "".join([char for char in filename.stem if char.isdigit()])
     return int(number_str) if number_str else float("inf")
 
 
-def copy_files_sequentially(source_folder):
-    # Get the list of files in the folder
+def copy_files_sequentially(source_folder: Path, output_folder: Path):
+    """
+    Copy files from the source folder to sequentially named subfolders in the output folder.
+    STT_NY_0001 -> 0001.txt,0001.mp3 | STT_NY_0002 -> 0002.txt,0002.wav ....
+    """
+    # Ensure the output folder exists
+    output_folder.mkdir(parents=True, exist_ok=True)
+
+    # Get the sorted list of files
     files = sorted(
-        (file for file in os.listdir(source_folder) if file != ".DS_Store"),
+        (file for file in source_folder.iterdir() if file.name != ".DS_Store"),
         key=extract_number_from_filename,
     )
 
+    # Copy files into sequentially numbered folders
     for idx, file in enumerate(files, start=1):
-        # Determine the target folder (e.g., stt_ny_1, stt_ny_2, ...)
         folder_name = f"STT_NY_{idx: 04d}"
-        target_folder = os.path.join(
-            output_folder, folder_name
-        )  # naykor_data -> stt_ny_1, stt_ny_2, ...
-        # Ensure the target folder exists
-        os.makedirs(target_folder, exist_ok=True)
-        # Copy the file into the target folder
-        source_path = os.path.join(source_folder, file)
-        target_path = os.path.join(target_folder, file)
-        shutil.copy(source_path, target_path)
+        target_folder = output_folder / folder_name
+        target_folder.mkdir(parents=True, exist_ok=True)
+
+        target_path = target_folder / file.name
+        shutil.copy(file, target_path)
+    print(f"Files copied from {source_folder} to {output_folder}")
 
 
-copy_files_sequentially(folder1)
-copy_files_sequentially(folder2)
-print("File copying completed successfully.")
+def main():
+
+    base_dir = get_relative_directory()
+
+    folder1 = base_dir / "extracted_files"
+    folder2 = base_dir / "ཨ་མདོའི་སྐད Final"
+    output_folder = base_dir / "amdo_naykor_data_experiment"
+
+    copy_files_sequentially(folder1, output_folder)
+    copy_files_sequentially(folder2, output_folder)
+
+    print("File copying completed successfully.")
+
+
+if __name__ == "__main__":
+    main()
