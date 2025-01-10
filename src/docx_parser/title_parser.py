@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 
 from bs4 import BeautifulSoup  # type: ignore
 
@@ -40,21 +41,19 @@ def extract_content(span_tag) -> list:
 
 
 def save_content_to_file(
-    title: str, content: list, file_counter: int, output_folder: str
+    title: str, content: list, file_counter: int, output_folder: Path
 ):
     # writes or saves the title and content to a text file.
     sanitized_title = f"{file_counter: 04d}"  # 0001.txt 0002.txt ...
-    file_path = os.path.join(output_folder, f"{sanitized_title}.txt")
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write(f"{title}\n")
-        file.write("\n".join(content))
-        file.write("\n")
+    file_path = output_folder / f"{sanitized_title}.txt"
+    file_content = f"{title}\n{'\n'.join(content)}\n"
+    file_path.write_text(file_content, encoding="utf-8")
 
 
-def process_file(file_path: str, output_folder: str):
+def process_file(file_path: Path, output_folder: Path):
     # Process the XHTML file and extract titles and content.
-    with open(file_path, encoding="utf-8") as file:
-        xhtml_content = file.read()
+
+    xhtml_content = file_path.read_text(encoding="utf-8")
 
     soup = BeautifulSoup(xhtml_content, "html.parser")
     body = soup.find("body")
@@ -121,13 +120,11 @@ def process_file(file_path: str, output_folder: str):
 
 def main():
     # get the path to file
-    current_dir = os.path.dirname(__file__)
-    file_path = os.path.join(current_dir, "../../data/transcript copy.doc.xhtml")
-    output_folder = (
-        "/Users/tenzindhakar/Desktop/Monlam/docx_parser/data/extracted_files"
-    )
+
+    docx_xhtml_path = Path("./data/transcript_doc.xhtml")
+    output_folder = Path("./data/extracted_files")
     create_ouput_folder(output_folder)
-    process_file(file_path, output_folder)
+    process_file(docx_xhtml_path, output_folder)
 
 
 if __name__ == "__main__":

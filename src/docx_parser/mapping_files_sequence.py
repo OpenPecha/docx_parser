@@ -3,13 +3,6 @@ import shutil
 from pathlib import Path
 
 
-def get_relative_directory() -> Path:
-    """
-    Get the base directory as a relative path from the script's location.
-    """
-    return Path(__file__).parent / "data"
-
-
 def extract_number_from_filename(filename: Path) -> int:
     """
     here the file name consists of number in it which i am extracting the number part only.
@@ -46,15 +39,13 @@ def copy_files_sequentially(source_folder: Path, output_folder: Path):
 
 def main():
 
-    base_dir = get_relative_directory()
-
-    folder1 = base_dir / "extracted_files"
-    folder2 = base_dir / "ཨ་མདོའི་སྐད Final"
-    output_folder = base_dir / "amdo_naykor_data_experiment"
+    base_dir = Path("../../data")
+    folder1 = base_dir / "extracted_files copy for kham"
+    folder2 = base_dir / "ཁམས་སྐད Final"
+    output_folder = base_dir / "kham_naykor_data2"
 
     copy_files_sequentially(folder1, output_folder)
     copy_files_sequentially(folder2, output_folder)
-
     print("File copying completed successfully.")
 
 
